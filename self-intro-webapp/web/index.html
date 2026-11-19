@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>전현우 | 자기소개</title>
+  <meta name="description" content="보안 연구를 하는 컴퓨터학부 학부생 전현우의 프로젝트와 연락처">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="nav">
+      <a class="logo" href="#home">전현우</a>
+      <ul class="nav-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">소개</a></li>
+        <li><a href="#projects">프로젝트</a></li>
+        <li><a href="#contact">연락처</a></li>
+        <li><a href="#guestbook">방명록</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+
+    <!-- S01 Home -->
+    <section id="home" class="hero">
+      <p class="hero-hello">안녕하세요,</p>
+      <h1>전현우입니다.</h1>
+      <p class="hero-sub">보안 연구를 하는 컴퓨터학부 학부생</p>
+      <ul class="tags" aria-label="핵심 키워드">
+        <li>드론 보안</li>
+        <li>취약점 분석</li>
+        <li>정적 분석</li>
+      </ul>
+      <a class="btn" href="#projects">프로젝트 보기</a>
+    </section>
+
+    <!-- S02 소개 -->
+    <section id="about">
+      <h2>소개</h2>
+      <dl class="info">
+        <div>
+          <dt>소속</dt>
+          <dd>한양대학교 컴퓨터학부</dd>
+        </div>
+        <div>
+          <dt>연구 관심 분야</dt>
+          <dd>드론(Robotic Vehicle) 제어 소프트웨어 보안, 취약점 패치 검증, 정적 분석</dd>
+        </div>
+        <div>
+          <dt>기술 스택</dt>
+          <dd>
+            <ul class="chips">
+              <li>Java</li>
+              <li>Python</li>
+              <li>Git / GitLab Flow</li>
+              <li>Jira</li>
+              <li>Jenkins</li>
+            </ul>
+          </dd>
+        </div>
+      </dl>
+    </section>
+
+    <!-- S03 프로젝트 -->
+    <section id="projects">
+      <h2>프로젝트</h2>
+      <div id="project-list" class="cards" aria-live="polite">
+        <p class="muted">불러오는 중입니다...</p>
+      </div>
+    </section>
+
+    <!-- S04 연락처 -->
+    <section id="contact">
+      <h2>연락처</h2>
+      <p>프로젝트에 대해 궁금한 점이 있다면 메일로 연락해주세요.</p>
+      <p class="contact-line">
+        <span class="muted">이메일</span>
+        <span id="email-text"></span>
+      </p>
+      <a id="mail-link" class="btn" href="#contact">메일 보내기</a>
+    </section>
+
+    <!-- S05 방명록 -->
+    <section id="guestbook">
+      <h2>방명록</h2>
+      <p id="guestbook-notice" class="notice">
+        현재는 임시 저장 방식이라 새로고침하면 사라집니다. (DynamoDB 연동 예정)
+      </p>
+
+      <form id="guestbook-form" novalidate>
+        <div class="field">
+          <label for="gb-name">이름 <span class="count" id="gb-name-count">0/20</span></label>
+          <input id="gb-name" name="name" type="text" maxlength="20" autocomplete="off" required>
+        </div>
+        <div class="field">
+          <label for="gb-message">메시지 <span class="count" id="gb-message-count">0/200</span></label>
+          <textarea id="gb-message" name="message" rows="4" maxlength="200" required></textarea>
+        </div>
+        <button id="gb-submit" class="btn" type="submit">남기기</button>
+        <p id="gb-status" class="status" role="status" aria-live="polite"></p>
+      </form>
+
+      <ul id="gb-list" class="gb-list"></ul>
+      <p id="gb-empty" class="muted" hidden>첫 번째 방명록을 남겨보세요.</p>
+      <button id="gb-more" class="btn btn-ghost" type="button" hidden>더 보기</button>
+    </section>
+
+  </main>
+
+  <footer class="footer">© 전현우</footer>
+
+  <!-- 프로젝트 상세 창 -->
+  <div id="modal" class="modal" hidden>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <button id="modal-close" class="modal-close" type="button" aria-label="닫기">&times;</button>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

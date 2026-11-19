@@ -1,0 +1,11 @@
+# AWS·비밀 정보는 절대 커밋하지 않습니다
+.env
+.env.*
+.aws/
+*.pem
+*credentials*
+*.key
+
+# 기타
+node_modules/
+.DS_Store
