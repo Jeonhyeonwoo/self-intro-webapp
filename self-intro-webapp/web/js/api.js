@@ -1,7 +1,7 @@
 // 데이터 접근 계층
-// 지금은 샘플 데이터와 메모리 저장을 쓰는 임시 구현입니다.
-// 이후 주차에 이 파일만 AppSync(GraphQL) 호출로 교체합니다.
-// (화면 코드는 window.api의 네 함수만 사용합니다.)
+// 프로젝트 정보는 이 파일의 샘플 데이터를 쓰고,
+// 방명록은 AppSync(GraphQL) → DynamoDB를 호출합니다.
+// 엔드포인트와 API 키는 js/config.js 에서 읽습니다. (화면 코드는 window.api의 네 함수만 사용)
 (function () {
   'use strict';
 
@@ -76,22 +76,45 @@
     }
   ];
 
-  const guestbook = []; // 최신 글이 앞에 옵니다
-  let nextId = 1;
-  const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-  // 서버(AppSync)에서도 같은 규칙으로 확인할 예정입니다.
-  function validate(input) {
-    const name = String((input && input.name) || '').trim();
-    const message = String((input && input.message) || '').trim();
-    if (name.length < 1 || name.length > 20) {
-      throw new Error('이름은 1~20자로 입력해주세요.');
+  // js/config.js 가 window.APP_CONFIG = { APPSYNC_URL, APPSYNC_API_KEY } 를 정의합니다.
+  async function gql(query, variables) {
+    const cfg = window.APP_CONFIG;
+    if (!cfg || !cfg.APPSYNC_URL || !cfg.APPSYNC_API_KEY) {
+      throw new Error('config.js 설정이 없습니다.');
     }
-    if (message.length < 1 || message.length > 200) {
-      throw new Error('메시지는 1~200자로 입력해주세요.');
+    let res;
+    try {
+      res = await fetch(cfg.APPSYNC_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-api-key': cfg.APPSYNC_API_KEY },
+        body: JSON.stringify({ query, variables })
+      });
+    } catch (e) {
+      throw new Error('서버에 연결할 수 없습니다.');
     }
-    return { name, message };
+    let body = null;
+    try { body = await res.json(); } catch (e) { /* JSON이 아닌 응답 */ }
+    if (body && body.errors && body.errors.length) {
+      throw new Error(body.errors[0].message);
+    }
+    if (!res.ok || !body) {
+      throw new Error('요청에 실패했습니다. (HTTP ' + res.status + ')');
+    }
+    return body.data;
   }
+
+  const LIST_QUERY = `query ($limit: Int, $nextToken: String) {
+    listGuestbook(limit: $limit, nextToken: $nextToken) {
+      items { id name message createdAt }
+      nextToken
+    }
+  }`;
+
+  const CREATE_MUTATION = `mutation ($name: String!, $message: String!) {
+    createGuestbook(name: $name, message: $message) {
+      id name message createdAt
+    }
+  }`;
 
   window.api = {
     // 프로젝트 카드 목록 (S03)
@@ -108,19 +131,17 @@
 
     // 방명록 목록, 최신순 (기능 3)
     async listGuestbook({ limit = 10, nextToken = null } = {}) {
-      const start = Number(nextToken) || 0;
-      const items = guestbook.slice(start, start + limit);
-      const end = start + limit;
-      return { items, nextToken: end < guestbook.length ? String(end) : null };
+      const data = await gql(LIST_QUERY, { limit, nextToken });
+      return data.listGuestbook;
     },
 
     // 방명록 저장 (기능 2)
-    async createGuestbook(input) {
-      await wait(400); // 전송 중 상태를 확인할 수 있도록 잠깐 기다립니다
-      const { name, message } = validate(input);
-      const item = { id: String(nextId++), name, message, createdAt: new Date().toISOString() };
-      guestbook.unshift(item);
-      return item;
+    async createGuestbook({ name, message }) {
+      const data = await gql(CREATE_MUTATION, {
+        name: String(name || '').trim(),
+        message: String(message || '').trim()
+      });
+      return data.createGuestbook;
     }
   };
 })();

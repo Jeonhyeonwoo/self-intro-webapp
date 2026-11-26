@@ -9,3 +9,6 @@
 # 기타
 node_modules/
 .DS_Store
+
+# 엔드포인트·API 키 설정(로컬 전용)
+web/js/config.js
